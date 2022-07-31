@@ -161,6 +161,10 @@ void splash(void)
   Serial.println("=======================================================");
   Serial.println();
   Serial.println();
+
+  /*char buffer[40];
+  sprintf(buffer, "The %d burritos are %s degrees F", 3.21, "hhh");
+  Serial.println(buffer);*/
 }
 
 
@@ -170,32 +174,33 @@ void splash(void)
 void setup() {
   /* ==========================GENERAL INFORMATION==================================
      The following steps are being preformed at setup:
-     1:
-     2:
-     3:
-     4:
-
+     1. Start serial out @ 115200 and print splash screen
+     2. Start I2C bus
+     3. General confiurgations 
+      - MPU
+      - LED
+      - Utrasonic
+      - H-Bridge
+      - RF24 Radio
+      - Servo
      =============================================================================*/ 
 
   /* =============================================================================== 
-     SETUP STEP 1: 
-     =============================================================================*/ 
-  Serial.begin(BAUD_RATE);          // setup serial output
-
+     SETUP 1. Start serial out and print splash screen
   // initialize serial communication (115200 chosen because it is required for Teapot 
   // demo output, but it's really up to you depending on the project)
+     =============================================================================*/ 
+  Serial.begin(BAUD_RATE);          // setup serial output
   while (!Serial)
     ;  // wait for Leonardo enumeration, others continue immediately
-
 
   splash();                         // splash project info to serial
 
 
   /* =============================================================================== 
-     SETUP STEP 1: 
+     SETUP 2. Start I2C bus
+  // join I2C bus (I2Cdev library doesn't do this automatically)    
      =============================================================================*/ 
-
-  // join I2C bus (I2Cdev library doesn't do this automatically)
   Serial.println(F("Initializing I2C devices..."));
   #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
     Wire.begin();
@@ -205,35 +210,28 @@ void setup() {
   #endif
 
   /* =============================================================================== 
-     SETUP STEP 1: MPU  CONFIG
+     SETUP 3. General confiurgations (MPU, LED, Utrasonic, H-Bridge, Radio, Servo)
      =============================================================================*/ 
 
+  // ============  MPU6050  ============
 //NOT BROUGHT OVER FROM VERSION 1 YET
 
 
-  /* =============================================================================== 
-     SETUP STEP 1: LED CONFIG
-     =============================================================================*/ 
+  // ============  LED  ============/ 
   pinMode(LED_PIN, OUTPUT);
 
-  /* =============================================================================== 
-     SETUP STEP 1: ULTRASONIC CONFIG
-     =============================================================================*/ 
+  // ============  Ultrasonic sensor  ============ 
   pinMode(trigPin, OUTPUT);  // Sets the trigPin as an Output
   pinMode(echoPin, INPUT);   // Sets the echoPin as an Input
 
-  /* =============================================================================== 
-     SETUP STEP 1: H-BRIDGE CONFIG
-     =============================================================================*/ 
+  // ============  H-Bridge  ============/ 
   pinMode(enA1, OUTPUT);
   pinMode(enA2, OUTPUT);
   pinMode(enB1, OUTPUT);
   pinMode(enB2, OUTPUT);
   pinMode(Horn, OUTPUT);
 
-  /* =============================================================================== 
-     SETUP STEP 1: RADIO CONFIG
-     =============================================================================*/ 
+  // ============  RF24 Radio  ============ 
   radio.begin();
   radio.openReadingPipe(0, address);
   radio.setPALevel(RF24_PA_MIN);
@@ -241,15 +239,11 @@ void setup() {
   Serial.println("... RF communication now started");
   delay(500);
 
-  /* =============================================================================== 
-     SETUP STEP 1: SERVO CONFIG
-     =============================================================================*/ 
+  // ============  Servo  ============ 
   Servo1.attach(servoPin);
   move_servo(90, j);  // the starting point is at 90 degrees
   Serial.println("...servo now at 90");
   delay(500);
-
-
 
 
 }
@@ -263,12 +257,13 @@ void setup() {
 // ================================================================
 void loop() {
   /* ==========================GENERAL INFORMATION==================================
-     The following steps are being preformed at initiation:
-     Step 1: Read sensor values   
+     The following steps are being preformed in the loop of the program:
+     1. Manual drive logic
+     2. Self drive logic
      =============================================================================*/ 
 
   /* =============================================================================== 
-     STEP 1: MANUAL DRIVE LOGIC 
+     1. Manual drive logic
     // manual drive using the RF module joystick
     // during manual drive, the car MPU is not working >>>
     // SelfDriveMode = false; Observing = false;  Turning = false;  Driving = false
@@ -283,12 +278,10 @@ void loop() {
 
 
   /* =============================================================================== 
-     STEP 2: SELF DRIVE LOGIC
+     2. Self drive logic
 
-     
+
      =============================================================================*/ 
-
-
 
 }
 
