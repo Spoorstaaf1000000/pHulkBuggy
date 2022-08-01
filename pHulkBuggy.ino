@@ -10,7 +10,7 @@
   A1 is trigPin for Ultrsonic sensor
   A2 is pin for servo
   A4 is SDA
-  A5 is SDL
+  A5 is SCL
 
   2 is interupt pin
   3 is enB1
@@ -96,6 +96,8 @@ int SSD = 45;                 // declare the safe stop distance
 
 boolean SelfDriveMode = false;  // Is the car in self drive or not
 
+char my_status[40];
+
 // ================================================================
 // ===                    CREATE OBJECTS                        ===
 // ================================================================
@@ -177,6 +179,7 @@ void setup() {
      1. Start serial out @ 115200 and print splash screen
      2. Start I2C bus
      3. General confiurgations 
+		 	-	LCD
       - MPU
       - LED
       - Utrasonic
@@ -215,12 +218,24 @@ void setup() {
      SETUP 3. General confirugations (MPU, LED, Utrasonic, H-Bridge, Radio, Servo)
      =============================================================================*/ 
 	Serial.println(F("General configuration..."));
+
+  // ============  LCD  ============/ 
+	lcd.init();                      // initialize the lcd 
+  lcd.backlight();
+  lcd.setCursor(0,0);
+
+	String msg = String(p_project); //p_project + F(" V") + version_hi + F(".") + version_lo + F(" ") + version_date;
+	lcd_scroll(msg, 50);
+	lcd.clear();
+
+  Serial.println("  ... LCD set");
+
   // ============  MPU6050  ============
 //NOT BROUGHT OVER FROM VERSION 1 YET
 
 
   // ============  LED  ============/ 
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.println("  ... LED pin set");
 
   // ============  Ultrasonic sensor  ============ 
@@ -274,14 +289,14 @@ void loop() {
     // SelfDriveMode = false; Observing = false;  Turning = false;  Driving = false
      =============================================================================*/
 
-  digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(1000);                       // wait for a second
-  digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
-  delay(1000);
-
-
+	Serial.print("SD\t");
+  Serial.print(SelfDriveMode);
+	Serial.print("\t");
+	Serial.println("  ... I am alive!");
 
   if (!SelfDriveMode) {
+		lcd.setCursor(5,0);
+		lcd.print("Manual");
     listern_to_RF24();
     // call tank model driving function based on the selection of xAxis, yAxis
     drive_function(xAxis, yAxis);
@@ -295,6 +310,11 @@ void loop() {
 
 
      =============================================================================*/ 
+
+
+
+
+
 
 }
 
@@ -376,9 +396,62 @@ void drive_function(int xAxis, int yAxis) {
 void motor_speed_A_function(int a, int b) {
   analogWrite(enA1, a);  // Send PWM signal to motor A
   analogWrite(enA2, b);  // Send PWM signal to motor A
+	lcd.setCursor(0,1);
+	lcd.print(a);
+	lcd.setCursor(4,1);
+	lcd.print(b);
 }
 
 void motor_speed_B_function(int a, int b) {
   analogWrite(enB1, a);  // Send PWM signal to motor B
   analogWrite(enB2, b);  // Send PWM signal to motor B
+	lcd.setCursor(13,1);
+	lcd.print(a);
+	lcd.setCursor(9,1);
+	lcd.print(b);
 }
+
+
+// ============  LCD SUB PROGRAMS  ============
+
+void lcd_scroll(String txt, int t) {
+	lcd.print(txt);
+	int txt_length = txt.length();
+	Serial.println(txt);
+  // scroll 13 positions (string length) to the left
+  // to move it offscreen left:
+  for (int positionCounter = 0; positionCounter < txt_length; positionCounter++) {
+    // scroll one position left:
+    lcd.scrollDisplayLeft();
+    // wait a bit:
+    delay(t);
+  }
+
+  // scroll 29 positions (string length + display length) to the right
+  // to move it offscreen right:
+  for (int positionCounter = 0; positionCounter < (txt_length * 2) + 3 ; positionCounter++) {
+    // scroll one position right:
+    lcd.scrollDisplayRight();
+    // wait a bit:
+    delay(t);
+  }
+
+  // scroll 16 positions (display length + string length) to the left
+  // to move it back to center:
+  for (int positionCounter = 0; positionCounter < (txt_length + 3); positionCounter++) {
+    // scroll one position left:
+    lcd.scrollDisplayLeft();
+    // wait a bit:
+    delay(t);
+  }
+
+  // delay at the end of the full loop:
+  delay(5 * t);
+
+}
+
+
+
+
+
+
