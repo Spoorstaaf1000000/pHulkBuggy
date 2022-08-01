@@ -7,7 +7,7 @@ The following pinouts are being used in this project
   A1 is trigPin for Ultrsonic sensor
   A2 is pin for servo
   A4 is SDA
-  A5 is SDL
+  A5 is SCL
 
   2 is interupt pin
   3 is enB1
@@ -39,12 +39,17 @@ The following steps are being preformed in the **loop** of the program:
 2. Self drive logic
 
 
-
+\t = tab character
 
 
 # Useful links
 **Changing floats to strings** https://www.programmingelectronics.com/dtostrf/
 **Insert variables to strings** https://www.programmingelectronics.com/sprintf-arduino/
+**LCD display** coding https://docs.arduino.cc/learn/electronics/lcd-displays#custom-character
+**Special characters** https://maxpromer.github.io/LCD-Character-Creator/
+**Arduino variable** https://roboticsbackend.com/arduino-variable-types-complete-guide/
+https://randomnerdtutorials.com/
+
 
 # GIT notes
 https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
