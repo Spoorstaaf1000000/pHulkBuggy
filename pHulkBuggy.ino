@@ -74,7 +74,7 @@ bool blinkState = false;  // note used
 // ================================================================
 // ===                      GEN VARIABLES                       ===
 // ================================================================
-const int BAUD_RATE PROGMEM = 115200;
+const int BAUD_RATE PROGMEM = 9600;
 int distance;  // distance measured by sensor
 int j = 30;    // delay following servo movement
 int angle;     // angle on MPU
@@ -156,8 +156,8 @@ void splash(void)
   Serial.println();
   Serial.println("=======================================================");
   Serial.println("===        WELCOME TO THE HULK BUGGY PROJECT        ===");
-  Serial.println("===                     BY SPOORSTAAF               ===");
-  Serial.println("===                       31/07/2022                ===");
+  Serial.println("===                  BY SPOORSTAAF                  ===");
+  Serial.println("===                   31/07/2022                    ===");
   Serial.println("=======================================================");
   Serial.println();
   Serial.println();
@@ -190,7 +190,9 @@ void setup() {
   // initialize serial communication (115200 chosen because it is required for Teapot 
   // demo output, but it's really up to you depending on the project)
      =============================================================================*/ 
+  
   Serial.begin(BAUD_RATE);          // setup serial output
+  Serial.println("... Start program");
   while (!Serial)
     ;  // wait for Leonardo enumeration, others continue immediately
 
@@ -210,19 +212,21 @@ void setup() {
   #endif
 
   /* =============================================================================== 
-     SETUP 3. General confiurgations (MPU, LED, Utrasonic, H-Bridge, Radio, Servo)
+     SETUP 3. General confirugations (MPU, LED, Utrasonic, H-Bridge, Radio, Servo)
      =============================================================================*/ 
-
+	Serial.println(F("General configuration..."));
   // ============  MPU6050  ============
 //NOT BROUGHT OVER FROM VERSION 1 YET
 
 
   // ============  LED  ============/ 
   pinMode(LED_PIN, OUTPUT);
+  Serial.println("  ... LED pin set");
 
   // ============  Ultrasonic sensor  ============ 
   pinMode(trigPin, OUTPUT);  // Sets the trigPin as an Output
   pinMode(echoPin, INPUT);   // Sets the echoPin as an Input
+  Serial.println("  ... Ultrasonic sensor set");
 
   // ============  H-Bridge  ============/ 
   pinMode(enA1, OUTPUT);
@@ -230,19 +234,20 @@ void setup() {
   pinMode(enB1, OUTPUT);
   pinMode(enB2, OUTPUT);
   pinMode(Horn, OUTPUT);
+  Serial.println("  ... H-Bridge set");
 
   // ============  RF24 Radio  ============ 
   radio.begin();
   radio.openReadingPipe(0, address);
   radio.setPALevel(RF24_PA_MIN);
   radio.startListening();
-  Serial.println("... RF communication now started");
+  Serial.println("  ... RF communication now started");
   delay(500);
 
   // ============  Servo  ============ 
   Servo1.attach(servoPin);
   move_servo(90, j);  // the starting point is at 90 degrees
-  Serial.println("...servo now at 90");
+  Serial.println("  ... Servo now at 90");
   delay(500);
 
 
@@ -268,6 +273,14 @@ void loop() {
     // during manual drive, the car MPU is not working >>>
     // SelfDriveMode = false; Observing = false;  Turning = false;  Driving = false
      =============================================================================*/
+
+  digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(1000);                       // wait for a second
+  digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+  delay(1000);
+
+
+
   if (!SelfDriveMode) {
     listern_to_RF24();
     // call tank model driving function based on the selection of xAxis, yAxis

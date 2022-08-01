@@ -49,6 +49,11 @@ The following steps are being preformed in the **loop** of the program:
 # GIT notes
 https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
 
+Switched to branch 'master'
+git merge <branch>
+
+Delete the branch
+git branch -d <branch>
 
 
 # MARKDOWN notes
