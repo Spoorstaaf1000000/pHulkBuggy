@@ -123,6 +123,76 @@ byte not_connectedChar[] = {
   B00100
 };
 
+byte manualChar[] = {
+  B10001,
+  B11011,
+  B11111,
+  B11111,
+  B10101,
+  B10101,
+  B10001,
+  B10001
+};
+
+byte pos3Char[] = {  
+  B00100,
+  B01010,
+  B10101,
+  B01010,
+  B10001,
+  B00100,
+  B01010,
+  B10001};
+byte pos2Char[] = {
+  B00000,
+  B00000,
+  B00100,
+  B01010,
+  B10001,
+  B00100,
+  B01010,
+  B10001};
+byte pos1Char[] = {
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00100,
+  B01010,
+  B10001};
+
+byte neg1Char[] = {
+  B10001,
+  B01010,
+  B00100,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000};
+byte neg2Char[] = {
+  B10001,
+  B01010,
+  B00100,
+  B10001,
+  B01010,
+  B00100,
+  B00000,
+  B00000};
+byte neg3Char[] = {
+  B10001,
+  B01010,
+  B00100,
+  B10001,
+  B01010,
+  B10101,
+  B01010,
+  B00100};
+
+
+
+
 
 
 // ================================================================
@@ -257,6 +327,15 @@ void setup() {
   //create special characters
   lcd.createChar(0, connectedChar);
   lcd.createChar(1, not_connectedChar);
+  lcd.createChar(2, manualChar);
+
+  lcd.createChar(11, pos3Char);
+  lcd.createChar(12, pos2Char);
+  lcd.createChar(13, pos1Char);
+  lcd.createChar(14, neg1Char);
+  lcd.createChar(15, neg2Char);
+  lcd.createChar(16, neg3Char);
+
 	lcd.clear();
   lcd.home();
   lcd.write(1);
@@ -328,8 +407,8 @@ void loop() {
 	//Serial.println("  ... I am alive!");
 
   if (!SelfDriveMode) {
-		lcd.setCursor(5,0);
-		lcd.print("Manual");
+		lcd.setCursor(0,1);
+		lcd.write(2);
     listern_to_RF24();
     // call tank model driving function based on the selection of xAxis, yAxis
     Serial.print("Joystick\t X");
@@ -426,7 +505,6 @@ void drive_function(int xAxis, int yAxis) {
   Serial.print(L);
 	Serial.print("\t");
 
-  lcd_update(R, L, 0, 7);
 
   if (R < -10) {
     motorSpeedA = map(R, -10, -100, 20, 255);
@@ -449,6 +527,13 @@ void drive_function(int xAxis, int yAxis) {
     motorSpeedB = 0;
     motor_speed_B_function(0, 0);
   }
+
+
+  lcd.setCursor(2,0);
+  lcd.write(11);
+  lcd.setCursor(4,1);
+  lcd.write(12);
+
 
   delay(10);
 }
