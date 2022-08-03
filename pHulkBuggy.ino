@@ -134,44 +134,27 @@ byte manualChar[] = {
   B10001
 };
 
-byte pos3Char[] = {  
-  B00100,
-  B01010,
-  B10101,
-  B01010,
-  B10001,
-  B00100,
-  B01010,
-  B10001};
-byte pos2Char[] = {
+byte posChar[] = {
   B00000,
   B00000,
   B00100,
   B01010,
   B10001,
-  B00100,
-  B01010,
-  B10001};
-byte pos1Char[] = {
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
   B00100,
   B01010,
   B10001};
 
-byte neg1Char[] = {
-  B10001,
-  B01010,
-  B00100,
+byte clear[] = {
+  B00000,
+  B00000,
+  B00000,
   B00000,
   B00000,
   B00000,
   B00000,
   B00000};
-byte neg2Char[] = {
+
+byte negChar[] = {
   B10001,
   B01010,
   B00100,
@@ -180,15 +163,7 @@ byte neg2Char[] = {
   B00100,
   B00000,
   B00000};
-byte neg3Char[] = {
-  B10001,
-  B01010,
-  B00100,
-  B10001,
-  B01010,
-  B10101,
-  B01010,
-  B00100};
+
 
 
 
@@ -329,12 +304,11 @@ void setup() {
   lcd.createChar(1, not_connectedChar);
   lcd.createChar(2, manualChar);
 
-  lcd.createChar(11, pos3Char);
-  lcd.createChar(12, pos2Char);
-  lcd.createChar(13, pos1Char);
-  lcd.createChar(14, neg1Char);
-  lcd.createChar(15, neg2Char);
-  lcd.createChar(16, neg3Char);
+  //lcd.createChar(11, pos3Char);
+  lcd.createChar(3, posChar);
+  lcd.createChar(4, clear);
+  lcd.createChar(5, negChar);
+  //lcd.createChar(17, neg3Char);
 
 	lcd.clear();
   lcd.home();
@@ -505,7 +479,10 @@ void drive_function(int xAxis, int yAxis) {
   Serial.print(L);
 	Serial.print("\t");
 
+  set_motor_speeds(R, enA1, enA2, 2);
+  set_motor_speeds(L, enB1, enB2, 4);
 
+/*
   if (R < -10) {
     motorSpeedA = map(R, -10, -100, 20, 255);
     motor_speed_A_function(0, motorSpeedA);
@@ -534,20 +511,60 @@ void drive_function(int xAxis, int yAxis) {
   lcd.setCursor(4,1);
   lcd.write(12);
 
+*/
 
   delay(10);
 }
 
+
+void set_motor_speeds(int calc_speed, uint8_t pin1, uint8_t pin2, int side){
+  int pin1_speed = 0;
+  int pin2_speed = 0;
+  if (calc_speed < -10) {
+    pin2_speed = map(calc_speed, -10, -100, 20, 255);
+    lcd.setCursor(side,0);
+    lcd.write(4);     //clear block
+    lcd.setCursor(side,1);
+    lcd.write(5);
+  } else if (calc_speed > 10) {
+    pin1_speed = map(calc_speed, 10, 100, 20, 255);
+    lcd.setCursor(side,0);
+    lcd.write(3);
+    lcd.setCursor(side,1);
+    lcd.write(4);     //clear block
+  } else {
+    lcd.setCursor(side,0);
+    lcd.write(4);     //clear block
+    lcd.setCursor(side,1);
+    lcd.write(4);     //clear block
+  }
+
+  Serial.print(pin1);
+  Serial.print("/t");
+  Serial.print(pin1_speed);
+  Serial.print("/t");
+  Serial.print(pin2);
+  Serial.print("/t");
+  Serial.print(pin2_speed);
+  Serial.print("/t");
+
+
+  analogWrite(pin1, pin1_speed);  // Send PWM signal to motor
+  analogWrite(pin2, pin2_speed);  // Send PWM signal to motor
+}
+
+/*
 void motor_speed_A_function(int a, int b) {
   analogWrite(enA1, a);  // Send PWM signal to motor A
   analogWrite(enA2, b);  // Send PWM signal to motor A
+  analogWr
 }
 
 void motor_speed_B_function(int a, int b) {
   analogWrite(enB1, a);  // Send PWM signal to motor B
   analogWrite(enB2, b);  // Send PWM signal to motor B
 }
-
+*/
 
 // ============  LCD SUB PROGRAMS  ============
 
