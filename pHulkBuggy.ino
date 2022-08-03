@@ -74,7 +74,7 @@ bool blinkState = false;  // note used
 // ================================================================
 // ===                      GEN VARIABLES                       ===
 // ================================================================
-const int BAUD_RATE PROGMEM = 9600;
+const int BAUD_RATE PROGMEM = 19200;
 int distance;  // distance measured by sensor
 int j = 30;    // delay following servo movement
 int angle;     // angle on MPU
@@ -97,6 +97,33 @@ int SSD = 45;                 // declare the safe stop distance
 boolean SelfDriveMode = false;  // Is the car in self drive or not
 
 char my_status[40];
+
+int LCD_last_update = 0;
+int LCD_update_cycle = 1000;
+
+byte connectedChar[] = {
+  B01110,
+  B01110,
+  B01110,
+  B00100,
+  B00100,
+  B00100,
+  B00100,
+  B00100
+};
+
+byte not_connectedChar[] = {
+  B10101,
+  B01110,
+  B01110,
+  B10101,
+  B00100,
+  B00100,
+  B00100,
+  B00100
+};
+
+
 
 // ================================================================
 // ===                    CREATE OBJECTS                        ===
@@ -226,7 +253,13 @@ void setup() {
 
 	String msg = String(p_project); //p_project + F(" V") + version_hi + F(".") + version_lo + F(" ") + version_date;
 	lcd_scroll(msg, 50);
+
+  //create special characters
+  lcd.createChar(0, connectedChar);
+  lcd.createChar(1, not_connectedChar);
 	lcd.clear();
+  lcd.home();
+  lcd.write(1);
 
   Serial.println("  ... LCD set");
 
@@ -292,14 +325,20 @@ void loop() {
 	Serial.print("SD\t");
   Serial.print(SelfDriveMode);
 	Serial.print("\t");
-	Serial.println("  ... I am alive!");
+	//Serial.println("  ... I am alive!");
 
   if (!SelfDriveMode) {
 		lcd.setCursor(5,0);
 		lcd.print("Manual");
     listern_to_RF24();
     // call tank model driving function based on the selection of xAxis, yAxis
+    Serial.print("Joystick\t X");
+    Serial.print(xAxis);
+    Serial.print("\t Y");
+    Serial.print(yAxis);
+    Serial.print("\t");
     drive_function(xAxis, yAxis);
+    Serial.println();
     //HornActivated();  // sound horn or activate/deactivate selfdrive
   }
 
@@ -336,8 +375,11 @@ void move_servo(int a, int b) {
 
 // ============  RF24 SUB PROGRAMS  ============
 void listern_to_RF24() {
+  lcd.setCursor(0,0);
   if (radio.available())  // If the NRF240L01 module received data
   {
+		lcd.write(0);
+    Serial.print("RF\t 1 \t");
     radio.read(&receivedData, sizeof(receivedData));  // Read the data and put it into character array
     if (!SelfDriveMode) {
       xAxis = receivedData[0];
@@ -345,6 +387,10 @@ void listern_to_RF24() {
     }
     SW = receivedData[2];
     delay(10);
+  }
+  else{
+    lcd.write(1);
+    Serial.print("RF\t 0 \t");
   }
 }
 
@@ -367,6 +413,20 @@ void drive_function(int xAxis, int yAxis) {
   R = (V + W) / 2;
   // Step 6 : Calculate L: L = (V-W) /2
   L = (V - W) / 2;
+
+  Serial.print("V\t");
+  Serial.print(V);
+	Serial.print("\tW\t");
+  Serial.print(W);
+	Serial.print("\t");
+
+  Serial.print("R\t");
+  Serial.print(R);
+	Serial.print("\t L\t");
+  Serial.print(L);
+	Serial.print("\t");
+
+  lcd_update(R, L, 0, 7);
 
   if (R < -10) {
     motorSpeedA = map(R, -10, -100, 20, 255);
@@ -396,19 +456,11 @@ void drive_function(int xAxis, int yAxis) {
 void motor_speed_A_function(int a, int b) {
   analogWrite(enA1, a);  // Send PWM signal to motor A
   analogWrite(enA2, b);  // Send PWM signal to motor A
-	lcd.setCursor(0,1);
-	lcd.print(a);
-	lcd.setCursor(4,1);
-	lcd.print(b);
 }
 
 void motor_speed_B_function(int a, int b) {
   analogWrite(enB1, a);  // Send PWM signal to motor B
   analogWrite(enB2, b);  // Send PWM signal to motor B
-	lcd.setCursor(13,1);
-	lcd.print(a);
-	lcd.setCursor(9,1);
-	lcd.print(b);
 }
 
 
@@ -450,7 +502,18 @@ void lcd_scroll(String txt, int t) {
 
 }
 
+void lcd_update(int x, int y, int position_1, int position_2){
 
+  int currentMillis = millis(); 
+  if (currentMillis - LCD_last_update >= LCD_update_cycle){
+    LCD_last_update = millis();
+    lcd.setCursor(position_1,1);
+    lcd.print(x);
+    lcd.setCursor(position_2,1);
+    lcd.print(y);
+  }
+
+}
 
 
 
