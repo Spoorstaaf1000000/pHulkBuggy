@@ -49,7 +49,17 @@ The following steps are being preformed in the **loop** of the program:
 **Special characters** https://maxpromer.github.io/LCD-Character-Creator/
 **Arduino variable** https://roboticsbackend.com/arduino-variable-types-complete-guide/
 https://randomnerdtutorials.com/
+**Tank joystick** https://home.kendra.com/mauser/joystick.html
 
+Get X and Y from the Joystick, do whatever scaling and calibrating you need to do based on your hardware.
+Invert X
+Calculate R+L (Call it V): V =(100-ABS(X)) * (Y/100) + Y
+Calculate R-L (Call it W): W= (100-ABS(Y)) * (X/100) + X
+Calculate R: R = (V+W) /2
+Calculate L: L= (V-W)/2
+Do any scaling on R and L your hardware may require.
+Send those values to your Robot.
+Go back to 1.
 
 # GIT notes
 https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
