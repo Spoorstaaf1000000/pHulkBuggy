@@ -302,7 +302,7 @@ void setup() {
   //create special characters
   lcd.createChar(0, connectedChar);
   lcd.createChar(1, not_connectedChar);
-  lcd.createChar(2, manualChar);
+  //lcd.createChar(2, manualChar);
 
   //lcd.createChar(11, pos3Char);
   lcd.createChar(3, posChar);
@@ -382,10 +382,11 @@ void loop() {
 
   if (!SelfDriveMode) {
 		lcd.setCursor(0,1);
-		lcd.write(2);
+		lcd.print("M");
     listern_to_RF24();
     // call tank model driving function based on the selection of xAxis, yAxis
-    Serial.print("Joystick\t X");
+    //Serial.print("Joystick\t X");
+    Serial.print("\t X");
     Serial.print(xAxis);
     Serial.print("\t Y");
     Serial.print(yAxis);
@@ -539,14 +540,15 @@ void set_motor_speeds(int calc_speed, uint8_t pin1, uint8_t pin2, int side){
     lcd.write(4);     //clear block
   }
 
+  Serial.print("p");
   Serial.print(pin1);
-  Serial.print("/t");
+  Serial.print("\t");
   Serial.print(pin1_speed);
-  Serial.print("/t");
+  Serial.print("\t p");
   Serial.print(pin2);
-  Serial.print("/t");
+  Serial.print("\t");
   Serial.print(pin2_speed);
-  Serial.print("/t");
+  Serial.print("\t");
 
 
   analogWrite(pin1, pin1_speed);  // Send PWM signal to motor
