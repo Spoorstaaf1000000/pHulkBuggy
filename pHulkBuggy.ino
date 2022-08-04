@@ -368,12 +368,7 @@ void loop() {
      2. Self drive logic
      =============================================================================*/ 
 
-  /* =============================================================================== 
-     1. Manual drive logic
-    // manual drive using the RF module joystick
-    // during manual drive, the car MPU is not working >>>
-    // SelfDriveMode = false; Observing = false;  Turning = false;  Driving = false
-     =============================================================================*/
+
 
 	Serial.print("SD\t");
   Serial.print(SelfDriveMode);
@@ -381,21 +376,34 @@ void loop() {
 	//Serial.println("  ... I am alive!");
 
   if (!SelfDriveMode) {
+    /* =============================================================================== 
+     1. Manual drive logic
+    // manual drive using the RF module joystick
+    // during manual drive, the car MPU is not working >>>
+    // SelfDriveMode = false; Observing = false;  Turning = false;  Driving = false
+     =============================================================================*/
 		lcd.setCursor(0,1);
 		lcd.print("M");
+    // listern for a new RF24 instruction
     listern_to_RF24();
-    // call tank model driving function based on the selection of xAxis, yAxis
-    //Serial.print("Joystick\t X");
+    
     Serial.print("\t X");
     Serial.print(xAxis);
     Serial.print("\t Y");
     Serial.print(yAxis);
     Serial.print("\t");
+
+    // call tank model driving function based on the selection of xAxis, yAxis
     drive_function(xAxis, yAxis);
+
+    // measure the ultrasonic distance and show on LCD
+    int distance = readPing();
+
     Serial.println();
     //HornActivated();  // sound horn or activate/deactivate selfdrive
   }
 
+  
 
 
   /* =============================================================================== 
@@ -403,7 +411,30 @@ void loop() {
 
 
      =============================================================================*/ 
+  if (SelfDriveMode) {
+    // SELF DRIVE LOGIC
+    // ==========================STAGE 1 OBSERVING====================================
+    // first observe environment in a range by scanning around and measure distances,
+    // and determine longest pathway.
+    // during observing, the car MPU is not working >>>
+    // SelfDriveMode = True; Observing = true;  Turning = false;  Driving = false
+    // ===============================================================================
+    if (Observing) {
 
+
+    }
+
+    if (Turning) {
+
+
+    }
+
+    if (Driving) {
+
+
+    }
+
+  } 
 
 
 
@@ -425,6 +456,25 @@ void move_servo(int a, int b) {
   Servo1.write(a);
   delay(b);
 }
+
+// ============  ULTRASONIC SUB PROGRAMS  ============
+int readPing() {
+  delay(50);
+  int cm = sonar.ping_cm();
+  if (cm == 0) {
+    cm = 0;
+  }
+
+  Serial.print("DIST \t");
+  Serial.print(cm);
+  Serial.print("\t");
+  lcd.setCursor(5,0);
+  lcd.print(cm);
+  return cm;
+}
+
+
+
 
 
 // ============  RF24 SUB PROGRAMS  ============
