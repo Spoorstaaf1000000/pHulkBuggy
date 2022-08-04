@@ -1,3 +1,5 @@
+#include <VariableTimedAction.h>
+
 /* ================================================================
   Name:       pHulkBuggy.ino
   Created:    2022/07/31
@@ -99,8 +101,9 @@ boolean SelfDriveMode = false;  // Is the car in self drive or not
 
 char my_status[40];
 
-int LCD_last_update = 0;
-int LCD_update_cycle = 2000;
+long LCD_last_update = 0;
+long LCD_update_cycle = 1000;
+long LCD_update_scale = 1;
 
 byte connectedChar[] = {
   B01110,
@@ -320,6 +323,8 @@ void setup() {
 	lcd.clear();
   lcd.home();
   lcd.write(1);
+  lcd.setCursor(6,0);
+  lcd.write(2);
 
   Serial.println("  ... LCD set");
 
@@ -481,21 +486,15 @@ int readPing() {
     cm_text = String(cm);
   }
 
-
   Serial.print("DIST \t");
   Serial.print(cm_text);
   Serial.print("\t");
 
-  if (millis() - LCD_last_update  > LCD_update_cycle) {
+  if (millis() - LCD_last_update  >= (LCD_update_cycle * LCD_update_scale)) {
     LCD_last_update = millis();
     lcd.setCursor(7,0);
-    lcd.write(2);
-    lcd.setCursor(8,0);
     lcd.print(cm_text);
   }
-
-
-
 
   return cm;
 }
