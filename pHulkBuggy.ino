@@ -75,7 +75,7 @@ bool blinkState = false;  // note used
 // ===                      GEN VARIABLES                       ===
 // ================================================================
 const int BAUD_RATE PROGMEM = 19200;
-int distance;  // distance measured by sensor
+int distance = 0;  // distance measured by sensor
 int j = 30;    // delay following servo movement
 int angle;     // angle on MPU
 
@@ -84,6 +84,7 @@ int LongAngle = 0;                            // this is angle at the longest di
 int SetAngle[10] = { 10, 45, 90, 135, 170 };  // range on angles to be measured
 int ReadDistance[10] = { 0, 0, 0, 0, 0 };     // range for each distance along each angle
 #define maximum_distance 500                  // maximun range for sensor ping function
+
 
 int StageDelay = 2000;        // delay between stages
 bool Observing = false;       // boolean for whether or not the vehicle is observing
@@ -99,7 +100,7 @@ boolean SelfDriveMode = false;  // Is the car in self drive or not
 char my_status[40];
 
 int LCD_last_update = 0;
-int LCD_update_cycle = 1000;
+int LCD_update_cycle = 2000;
 
 byte connectedChar[] = {
   B01110,
@@ -164,7 +165,15 @@ byte negChar[] = {
   B00000,
   B00000};
 
-
+byte UltraChar[] = {
+  B00000,
+  B10000,
+  B11110,
+  B11110,
+  B11110,
+  B11110,
+  B10000,
+  B00000};
 
 
 
@@ -302,13 +311,11 @@ void setup() {
   //create special characters
   lcd.createChar(0, connectedChar);
   lcd.createChar(1, not_connectedChar);
-  //lcd.createChar(2, manualChar);
-
-  //lcd.createChar(11, pos3Char);
+  lcd.createChar(2, UltraChar);
   lcd.createChar(3, posChar);
   lcd.createChar(4, clear);
   lcd.createChar(5, negChar);
-  //lcd.createChar(17, neg3Char);
+  
 
 	lcd.clear();
   lcd.home();
@@ -397,7 +404,7 @@ void loop() {
     drive_function(xAxis, yAxis);
 
     // measure the ultrasonic distance and show on LCD
-    int distance = readPing();
+    distance = readPing();
 
     Serial.println();
     //HornActivated();  // sound horn or activate/deactivate selfdrive
@@ -461,17 +468,38 @@ void move_servo(int a, int b) {
 int readPing() {
   delay(50);
   int cm = sonar.ping_cm();
+  String cm_text = "";
+
   if (cm == 0) {
     cm = 0;
   }
 
+  if (cm < 100) {
+    cm_text = " " + String(cm);
+  }
+  else {
+    cm_text = String(cm);
+  }
+
+
   Serial.print("DIST \t");
-  Serial.print(cm);
+  Serial.print(cm_text);
   Serial.print("\t");
-  lcd.setCursor(5,0);
-  lcd.print(cm);
+
+  if (millis() - LCD_last_update  > LCD_update_cycle) {
+    LCD_last_update = millis();
+    lcd.setCursor(7,0);
+    lcd.write(2);
+    lcd.setCursor(8,0);
+    lcd.print(cm_text);
+  }
+
+
+
+
   return cm;
 }
+
 
 
 
