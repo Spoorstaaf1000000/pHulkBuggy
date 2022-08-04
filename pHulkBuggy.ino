@@ -178,7 +178,16 @@ byte UltraChar[] = {
   B10000,
   B00000};
 
-
+byte hornChar[] = {
+  B00110,
+  B01000,
+  B10010,
+  B10101,
+  B10101,
+  B10010,
+  B01000,
+  B00110
+};
 
 
 
@@ -318,7 +327,7 @@ void setup() {
   lcd.createChar(3, posChar);
   lcd.createChar(4, clear);
   lcd.createChar(5, negChar);
-  
+  lcd.createChar(6, hornChar);
 
 	lcd.clear();
   lcd.home();
@@ -399,7 +408,7 @@ void loop() {
     // listern for a new RF24 instruction
     listern_to_RF24();
     
-    Serial.print("\t X");
+    Serial.print("X");
     Serial.print(xAxis);
     Serial.print("\t Y");
     Serial.print(yAxis);
@@ -411,8 +420,11 @@ void loop() {
     // measure the ultrasonic distance and show on LCD
     distance = readPing();
 
+    // sound horn or activate/deactivate selfdrive
+    activate_the_horn();  
+
     Serial.println();
-    //HornActivated();  // sound horn or activate/deactivate selfdrive
+    
   }
 
   
@@ -524,6 +536,36 @@ void listern_to_RF24() {
     Serial.print("RF\t 0 \t");
   }
 }
+
+
+void activate_the_horn() {
+  if (SW == 0) {
+    digitalWrite(Horn, HIGH);
+    lcd.setCursor(11,0);
+    lcd.write(6);
+    Serial.print("H\t 1 \t");
+    CountZero++;
+  } 
+  else {
+    digitalWrite(Horn, LOW);
+    lcd.setCursor(11,0);
+    lcd.print("-");
+    Serial.print("H\t 0 \t");
+    if (millis() - FirstZero > 1000) {
+      CountZero = 0;
+      FirstZero = millis();
+    }
+  }
+  // set up count which will determine for what period the joystick neends to be pressed before mode will change
+  if (CountZero > 20000) {
+    Observing = !Observing;
+    SelfDriveMode = !SelfDriveMode;
+    CountZero = 0;
+    digitalWrite(Horn, LOW);
+  }
+}
+
+
 
 // ============  H-BRIDGE SUB PROGRAMS  ============
 void drive_function(int xAxis, int yAxis) {
