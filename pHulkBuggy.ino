@@ -394,7 +394,13 @@ void loop() {
 	Serial.print("SD\t");
   Serial.print(SelfDriveMode);
 	Serial.print("\t");
-	//Serial.println("  ... I am alive!");
+
+  // listern for a new RF24 instruction
+  listern_to_RF24();  //////////^>>>>>>>>>>>REMEMBER TO MOVE THIS OUTSIDE OF DRIVE MODES TO ENSURE THAT HORN WILL ALWAYS WORK
+  // sound horn or activate/deactivate selfdrive
+  activate_the_horn();   //////////^>>>>>>>>>>>REMEMBER TO MOVE THIS OUTSIDE OF DRIVE MODES TO ENSURE THAT HORN WILL ALWAYS WORK
+
+      
 
   if (!SelfDriveMode) {
     /* =============================================================================== 
@@ -405,8 +411,6 @@ void loop() {
      =============================================================================*/
 		lcd.setCursor(0,1);
 		lcd.print("M");
-    // listern for a new RF24 instruction
-    listern_to_RF24();
     
     Serial.print("X");
     Serial.print(xAxis);
@@ -420,8 +424,7 @@ void loop() {
     // measure the ultrasonic distance and show on LCD
     distance = readPing();
 
-    // sound horn or activate/deactivate selfdrive
-    activate_the_horn();  
+   
 
     Serial.println();
     
@@ -445,17 +448,41 @@ void loop() {
     // ===============================================================================
     if (Observing) {
 
+      /*
+      1. stop wheels
+      2. read distance at various angles
+      3. determine longest route
+      4. cntre servo and get ready to drive
+      5. switch to drive mode
+      */
+
+      Observing = !Observing;
+      Turning = !Turning;
+      
 
     }
 
     if (Turning) {
 
-
+      /*
+      1. read start MPU value
+      2. turn (like tank) until reached the angle
+      3. stop turning at angle and switch drive modes
+      */
+      Turning = !Turning;
+      Driving = !Driving;
     }
 
     if (Driving) {
+      /*
+      1. start driving straight
+      2. read distance in front of buggy
+      3. if within SSD, stop and switch drive modes (observing)
+      4. if not within SSD, keep on driving
+      */
 
-
+      Driving = !Driving;
+      Observing = !Observing;
     }
 
   } 
@@ -556,7 +583,8 @@ void activate_the_horn() {
       FirstZero = millis();
     }
   }
-  // set up count which will determine for what period the joystick neends to be pressed before mode will change
+  /* set up count which will determine for what period the 
+    joystick needs to be pressed before mode will change */
   if (CountZero > 20000) {
     Observing = !Observing;
     SelfDriveMode = !SelfDriveMode;
