@@ -42,7 +42,7 @@ const long version_date = 20220731;       // revision date
 #include <Servo.h>              // include the Servo library
 #include <NewPing.h>            // ultrasonic sensor function library
 #include <I2Cdev.h>
-#include <MPU6050.h>
+//#include <MPU6050.h>
 //#include "MPU6050_6Axis_MotionApps20.h"
 #include <MPU6050_tockn.h>
 #include <Wire.h>
@@ -76,120 +76,46 @@ bool blinkState = false;  // note used
 // ================================================================
 // ===                      GEN VARIABLES                       ===
 // ================================================================
+// General variables
 const int BAUD_RATE PROGMEM = 19200;
-int distance = 0;  // distance measured by sensor
-int j = 30;    // delay following servo movement
-int angle;     // angle on MPU
 
-int LongDistance = 0;                         // this is the longest distance measured
-int LongAngle = 0;                            // this is angle at the longest distance measured
-int SetAngle[10] = { 10, 45, 90, 135, 170 };  // range on angles to be measured
+// Ultrasonic sensor variables
+int distance = 0;       // distance measured by sensor
+int LongDistance = 0;   // this is the longest distance measured
 int ReadDistance[10] = { 0, 0, 0, 0, 0 };     // range for each distance along each angle
 #define maximum_distance 500                  // maximun range for sensor ping function
+int SSD = 45;                 // declare the safe stop distance
 
+// Servo variables
+int j = 30;             // delay following servo movement
+int LongAngle = 0;      // this is angle at the longest distance measured
+int SetAngle[10] = { 10, 45, 90, 135, 170 };  // range on angles to be measured
+signed int TurningAngle = 0;      // the value of the angular change required for car to follow longest path
 
+// MPU6050 variables
+int angle;     // angle on MPU
+bool FirstAngle = true;       // boolean to determine if this is the first angle
+int FirstAngleValue = 0;      // first angle from MPU, before user movements of MPU
+
+// Stages variables
 int StageDelay = 2000;        // delay between stages
 bool Observing = false;       // boolean for whether or not the vehicle is observing
 bool Turning = false;         // boolean for whether or not the vehicle is turning
-bool FirstAngle = true;       // boolean to dtermine if this is the first angle
-int FirstAngleValue = 0;      // first angle from MPU, before user movements of MPU
-signed int TurningAngle = 0;  // the value of the angular change required for car to follow longest path
 bool Driving = false;         // boolean for whether or not the vehicle is driving
-int SSD = 45;                 // declare the safe stop distance
+bool SelfDriveMode = false;   // Is the car in self drive or not
 
-boolean SelfDriveMode = false;  // Is the car in self drive or not
-
-char my_status[40];
-
+// LCD variables
 long LCD_last_update = 0;
 long LCD_update_cycle = 1000;
 long LCD_update_scale = 1;
-
-byte connectedChar[] = {
-  B01110,
-  B01110,
-  B01110,
-  B00100,
-  B00100,
-  B00100,
-  B00100,
-  B00100
-};
-
-byte not_connectedChar[] = {
-  B10101,
-  B01110,
-  B01110,
-  B10101,
-  B00100,
-  B00100,
-  B00100,
-  B00100
-};
-
-byte manualChar[] = {
-  B10001,
-  B11011,
-  B11111,
-  B11111,
-  B10101,
-  B10101,
-  B10001,
-  B10001
-};
-
-byte posChar[] = {
-  B00000,
-  B00000,
-  B00100,
-  B01010,
-  B10001,
-  B00100,
-  B01010,
-  B10001};
-
-byte clear[] = {
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000};
-
-byte negChar[] = {
-  B10001,
-  B01010,
-  B00100,
-  B10001,
-  B01010,
-  B00100,
-  B00000,
-  B00000};
-
-byte UltraChar[] = {
-  B00000,
-  B10000,
-  B11110,
-  B11110,
-  B11110,
-  B11110,
-  B10000,
-  B00000};
-
-byte hornChar[] = {
-  B00110,
-  B01000,
-  B10010,
-  B10101,
-  B10101,
-  B10010,
-  B01000,
-  B00110
-};
-
-
+byte connectedChar[] = {  B01110,  B01110,  B01110,  B00100,  B00100,  B00100,  B00100,  B00100};
+byte not_connectedChar[] = {  B10101,  B01110,  B01110,  B10101,  B00100,  B00100,  B00100,  B00100};
+byte manualChar[] = {  B10001,  B11011,  B11111,  B11111,  B10101,  B10101,  B10001,  B10001};
+byte posChar[] = {  B00000,  B00000,  B00100,  B01010,  B10001,  B00100,  B01010,  B10001};
+byte clear[] = {  B00000,  B00000,  B00000,  B00000,  B00000,  B00000, B00000,  B00000};
+byte negChar[] = {  B10001,  B01010,  B00100,  B10001,  B01010,  B00100,  B00000, B00000};
+byte UltraChar[] = {  B00000,  B10000,  B11110,  B11110,  B11110,  B11110,  B10000, B00000};
+byte hornChar[] = {  B00110,  B01000,  B10010,  B10101,  B10101,  B10010,  B01000,  B00110};
 
 // ================================================================
 // ===                    CREATE OBJECTS                        ===
@@ -348,9 +274,8 @@ void setup() {
   // ============  MPU6050  ============
   //NOT BROUGHT OVER FROM VERSION 1 YET
   
-  //mpu6050.begin();
-  
-  //mpu6050.calcGyroOffsets(true);
+  mpu6050.begin();
+  mpu6050.calcGyroOffsets(true);
   //mpu6050.getAngleZ();
   /* new library*/
 
