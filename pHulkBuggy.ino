@@ -1,5 +1,3 @@
-#include <VariableTimedAction.h>
-
 /* ================================================================
   Name:       pHulkBuggy.ino
   Created:    2022/07/31
@@ -46,14 +44,16 @@ const long version_date = 20220731;       // revision date
 #include <I2Cdev.h>
 #include <MPU6050.h>
 //#include "MPU6050_6Axis_MotionApps20.h"
+#include <MPU6050_tockn.h>
+#include <Wire.h>
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
 
 // Arduino Wire library is required if I2Cdev I2CDEV_ARDUINO_WIRE implementation is used in I2Cdev.h
-#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-#include "Wire.h"
-#endif
+/*#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+#include <Wire.h>
+#endif*/
 
 
 // ================================================================
@@ -198,6 +198,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 Servo Servo1;                                       //servo object
 NewPing sonar(trigPin, echoPin, maximum_distance);  //sensor function
 //MPU6050 mpu;                                        // AD0 low = 0x68 (default)
+MPU6050 mpu6050(Wire);
 RF24 radio(7, 8);                                   // CE, CSN
 const byte address[6] = "00001";
 
@@ -299,14 +300,21 @@ void setup() {
      SETUP 2. Start I2C bus
   // join I2C bus (I2Cdev library doesn't do this automatically)    
      =============================================================================*/ 
+
+
+
   Serial.println(F("Initializing I2C devices..."));
+  Wire.begin();
+  Wire.setClock(400000);
+
+/*
   #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
     Wire.begin();
     Wire.setClock(400000);  // 400kHz I2C clock. Comment this line if having compilation difficulties
   #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
     Fastwire::setup(400, true);
   #endif
-
+*/
   /* =============================================================================== 
      SETUP 3. General confirugations (MPU, LED, Utrasonic, H-Bridge, Radio, Servo)
      =============================================================================*/ 
@@ -338,8 +346,13 @@ void setup() {
   Serial.println("  ... LCD set");
 
   // ============  MPU6050  ============
-//NOT BROUGHT OVER FROM VERSION 1 YET
-
+  //NOT BROUGHT OVER FROM VERSION 1 YET
+  
+  //mpu6050.begin();
+  
+  //mpu6050.calcGyroOffsets(true);
+  //mpu6050.getAngleZ();
+  /* new library*/
 
   // ============  LED  ============/ 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -438,31 +451,33 @@ void loop() {
   if (SelfDriveMode) {
     // SELF DRIVE LOGIC
     // ==========================STAGE 1 OBSERVING====================================
-    // first observe environment in a range by scanning around and measure distances,
-    // and determine longest pathway.
-    // during observing, the car MPU is not working >>>
-    // SelfDriveMode = True; Observing = true;  Turning = false;  Driving = false
+    // 1. first observe environment in a range by scanning around and measure distances,
+    //    and determine longest pathway.
+    // 2. turn through the angle that was determined.
+    // 3. drive until too close to object.
     // ===============================================================================
-    if (Observing) {
 
+
+    if (Observing) {
+      // SelfDriveMode = true; Observing = true;  Turning = false;  Driving = false
 
     }
 
     if (Turning) {
+      // SelfDriveMode = true; Observing = false;  Turning = true;  Driving = false
 
+
+      //mpu6050.update();
+      //start_angle = mpu6050.getAngleZ()
 
     }
 
     if (Driving) {
-
+      // SelfDriveMode = true; Observing = false;  Turning = false;  Driving = true
 
     }
 
   } 
-
-
-
-
 
 }
 
