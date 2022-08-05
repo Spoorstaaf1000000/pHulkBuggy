@@ -70,6 +70,29 @@ git merge <branch>
 Delete the branch
 git branch -d <branch>
 
+https://nvie.com/posts/a-successful-git-branching-model/
+
+Creating a feature branch 
+When starting work on a new feature, branch off from the develop branch.
+
+$ git checkout -b myfeature develop
+Switched to a new branch "myfeature"
+
+
+Incorporating a finished feature on develop 
+Finished features may be merged into the develop branch to definitely add them to the upcoming release:
+
+$ git checkout develop
+Switched to branch 'develop'
+$ git merge --no-ff myfeature
+Updating ea1b82a..05e9557
+(Summary of changes)
+$ git branch -d myfeature
+Deleted branch myfeature (was 05e9557).
+$ git push origin develop
+The --no-ff flag causes the merge to always create a new commit object, even if the merge could be performed with a fast-forward. This avoids losing information about the historical existence of a feature branch and groups together all commits that together added the feature
+
+
 
 # MARKDOWN notes
 https://www.markdownguide.org/cheat-sheet/
