@@ -76,7 +76,7 @@ bool blinkState = false;  // note used
 // ================================================================
 // ===                      GEN VARIABLES                       ===
 // ================================================================
-const int BAUD_RATE PROGMEM = 19200;
+const int BAUD_RATE PROGMEM = 9600;
 int distance = 0;  // distance measured by sensor
 int j = 30;    // delay following servo movement
 int angle;     // angle on MPU
@@ -400,8 +400,7 @@ void loop() {
   // sound horn or activate/deactivate selfdrive
   activate_the_horn();   //////////^>>>>>>>>>>>REMEMBER TO MOVE THIS OUTSIDE OF DRIVE MODES TO ENSURE THAT HORN WILL ALWAYS WORK
 
-      
-
+  
   if (!SelfDriveMode) {
     /* =============================================================================== 
      1. Manual drive logic
