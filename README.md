@@ -50,6 +50,7 @@ The following steps are being preformed in the **loop** of the program:
 **Arduino variable** https://roboticsbackend.com/arduino-variable-types-complete-guide/
 https://randomnerdtutorials.com/
 **Tank joystick** https://home.kendra.com/mauser/joystick.html
+**MPU6050** https://howtomechatronics.com/tutorials/arduino/arduino-and-mpu6050-accelerometer-and-gyroscope-tutorial/
 
 Get X and Y from the Joystick, do whatever scaling and calibrating you need to do based on your hardware.
 Invert X
