@@ -10,11 +10,11 @@ The following pinouts are being used in this project
   A5 is SCL
 
   2 is interupt pin
-  3 is enB1
+  3 is enA1
   4 is horn
-  5 is enB2 
-  6 is enA1
-  9 is enA2
+  5 is enA2
+  6 is enB2 
+  9 is enB1
   13 is Led_pin
 
    NOTE: In addition to connection 5v, GND, SDA, and SCL, this sketch

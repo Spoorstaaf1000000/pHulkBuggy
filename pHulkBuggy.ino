@@ -29,10 +29,10 @@
 /* ================================================================
 // ===                 PROJECT NAME AND VERSION                 ===
 // ==============================================================*/
-const char *p_project = "HulkBuggy v2";   // add project name
-const uint8_t version_hi = 2;             // hi version
+const char *p_project = "HulkBuggy v3";   // add project name
+const uint8_t version_hi = 3;             // hi version
 const uint8_t version_lo = 0;             // low version
-const long version_date = 20220731;       // revision date
+const long version_date = 20230516;       // revision date
 
 
 // ================================================================
