@@ -37,11 +37,12 @@ The following steps are being preformed in the **loop** of the program:
 1. Manual drive logic
 2. Self drive logic
 
+Unit tests are available to test various senarios in the code. For running unit test set **UnitTest == True**
 
 # Tank TurnMovement Calculations
 Get X and Y from the Joystick, do whatever scaling and calibrating you need to do based on your hardware.
 Invert X
-Calculate R+L (Call it V): V =(100-ABS(X)) * (Y/100) + Y
+Calculate R+L (Call it V): V=(100-ABS(X)) * (Y/100) + Y
 Calculate R-L (Call it W): W= (100-ABS(Y)) * (X/100) + X
 Calculate R: R = (V+W) /2
 Calculate L: L= (V-W)/2

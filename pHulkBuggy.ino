@@ -65,8 +65,8 @@ const long version_date = 20220731;       // revision date
 #define trigPin A1       // define the sensor trigger pin
 #define echoPin A0       // define the sensor echo pin
 #define servoPin A2      // declare the Servo pin
-#define enA1 6
-#define enA2 9
+#define enA1 9
+#define enA2 6
 #define enB1 3
 #define enB2 5
 #define Horn 4
@@ -77,7 +77,7 @@ bool blinkState = false;  // note used
 // ===                      GEN VARIABLES                       ===
 // ================================================================
 // General variables
-const int BAUD_RATE PROGMEM = 19200;
+const int BAUD_RATE PROGMEM = 9600;
 
 // Ultrasonic sensor variables
 int distance = 0;       // distance measured by sensor
@@ -103,6 +103,8 @@ bool Observing = false;       // boolean for whether or not the vehicle is obser
 bool Turning = false;         // boolean for whether or not the vehicle is turning
 bool Driving = false;         // boolean for whether or not the vehicle is driving
 bool SelfDriveMode = false;   // Is the car in self drive or not
+bool UnitTest = true;         // Create unit test section
+
 
 // LCD variables
 long LCD_last_update = 0;
@@ -213,7 +215,6 @@ void setup() {
   // initialize serial communication (115200 chosen because it is required for Teapot 
   // demo output, but it's really up to you depending on the project)
      =============================================================================*/ 
-  
   Serial.begin(BAUD_RATE);          // setup serial output
   Serial.println("... Start program");
   while (!Serial)
@@ -221,38 +222,32 @@ void setup() {
 
   splash();                         // splash project info to serial
 
-
   /* =============================================================================== 
      SETUP 2. Start I2C bus
   // join I2C bus (I2Cdev library doesn't do this automatically)    
      =============================================================================*/ 
-
-
-
   Serial.println(F("Initializing I2C devices..."));
   Wire.begin();
   Wire.setClock(400000);
 
-/*
+  /*
   #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
     Wire.begin();
     Wire.setClock(400000);  // 400kHz I2C clock. Comment this line if having compilation difficulties
   #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
     Fastwire::setup(400, true);
   #endif
-*/
+  */
   /* =============================================================================== 
      SETUP 3. General confirugations (MPU, LED, Utrasonic, H-Bridge, Radio, Servo)
      =============================================================================*/ 
 	Serial.println(F("General configuration..."));
-
-  // ============  LCD  ============/ 
-	lcd.init();                      // initialize the lcd 
+	lcd.init();                    
   lcd.backlight();
   lcd.setCursor(0,0);
 
 	String msg = String(p_project); //p_project + F(" V") + version_hi + F(".") + version_lo + F(" ") + version_date;
-	lcd_scroll(msg, 50);
+	//lcd_scroll(msg, 50);
 
   //create special characters
   lcd.createChar(0, connectedChar);
@@ -274,8 +269,8 @@ void setup() {
   // ============  MPU6050  ============
   //NOT BROUGHT OVER FROM VERSION 1 YET
   
-  mpu6050.begin();
-  mpu6050.calcGyroOffsets(true);
+  //mpu6050.begin();
+  //mpu6050.calcGyroOffsets(true);
   //mpu6050.getAngleZ();
   /* new library*/
 
@@ -328,82 +323,147 @@ void loop() {
      =============================================================================*/ 
 
 
-
-	Serial.print("SD\t");
-  Serial.print(SelfDriveMode);
-	Serial.print("\t");
-	//Serial.println("  ... I am alive!");
-
-  if (!SelfDriveMode) {
-    /* =============================================================================== 
-     1. Manual drive logic
-    // manual drive using the RF module joystick
-    // during manual drive, the car MPU is not working >>>
-    // SelfDriveMode = false; Observing = false;  Turning = false;  Driving = false
-     =============================================================================*/
-		lcd.setCursor(0,1);
-		lcd.print("M");
-    // listern for a new RF24 instruction
-    listern_to_RF24();
-    
-    Serial.print("X");
-    Serial.print(xAxis);
-    Serial.print("\t Y");
-    Serial.print(yAxis);
-    Serial.print("\t");
-
-    // call tank model driving function based on the selection of xAxis, yAxis
-    drive_function(xAxis, yAxis);
-
-    // measure the ultrasonic distance and show on LCD
-    distance = readPing();
-
-    // sound horn or activate/deactivate selfdrive
-    activate_the_horn();  
-
-    Serial.println();
-    
-  }
-
   
+    if(UnitTest){
+      //Serial.println("UTest"); 
+
+      xAxis = 510;
+      yAxis = 510;
+      
+
+      while (Serial.available() > 0) {
+        // read the incoming byte:
+        int incoming = Serial.parseInt();
+
+        // say what you got:
+        Serial.println();
+        Serial.print("Selection: ");
+        Serial.println(incoming);
 
 
-  /* =============================================================================== 
-     2. Self drive logic
+        if(incoming == 1){
+          int startMillis = millis();
+          Serial.println(" - Moving forward");
+          drive_function(561, 1024);
+          delay(2000);
+        }
+        else if(incoming == 2){
+          int startMillis = millis();
+          Serial.println(" - Moving backward");
+          drive_function(561, 0);
+          delay(2000);
+        }
+              /*
+              #define enA1 9
+              #define enA2 6
+              #define enB1 3
+              #define enB2 5
+              */      
+        else if(incoming == 3){
+          int startMillis = millis();
+          Serial.println(" - Moving Pin 9");
+          analogWrite(enA1, 255);  // Send PWM signal to motor
+          delay(2000);
+        }
+        else if(incoming == 4){
+          int startMillis = millis();
+          Serial.println(" - Moving Pin 6");
+          analogWrite(enA2, 255);  // Send PWM signal to motor
+          delay(2000);
+        }
+        else if(incoming == 5){
+          int startMillis = millis();
+          Serial.println(" - Moving Pin 3");
+          analogWrite(enB1, 255);  // Send PWM signal to motor
+          delay(2000);
+        }
+        else if(incoming == 6){
+          int startMillis = millis();
+          Serial.println(" - Moving Pin 5");
+          analogWrite(enB2, 255);  // Send PWM signal to motor
+          delay(2000);
+        }
+        else if(incoming == 7){
+          int startMillis = millis();
+          Serial.println(" - add description");
+          analogWrite(enB2, 255);  // Send PWM signal to motor
+          delay(2000);
+        }
 
 
-     =============================================================================*/ 
-  if (SelfDriveMode) {
-    // SELF DRIVE LOGIC
-    // ==========================STAGE 1 OBSERVING====================================
-    // 1. first observe environment in a range by scanning around and measure distances,
-    //    and determine longest pathway.
-    // 2. turn through the angle that was determined.
-    // 3. drive until too close to object.
-    // ===============================================================================
-
-
-    if (Observing) {
-      // SelfDriveMode = true; Observing = true;  Turning = false;  Driving = false
-
+        drive_function(510, 510);
+      }
     }
 
-    if (Turning) {
-      // SelfDriveMode = true; Observing = false;  Turning = true;  Driving = false
+    if(!UnitTest){
+      Serial.print("SD=");
+      Serial.print(SelfDriveMode);
+
+      if (!SelfDriveMode) {
+        /* =============================================================================== 
+        1. Manual drive logic
+        // manual drive using the RF module joystick
+        // during manual drive, the car MPU is not working >>>
+        // SelfDriveMode = false; Observing = false;  Turning = false;  Driving = false
+        =============================================================================*/
+        lcd.setCursor(0,1);
+        lcd.print("M");
+        // listern for a new RF24 instruction
+        listern_to_RF24();
+
+        Serial.print("\t X=");
+        Serial.print(xAxis);
+        Serial.print("\t Y=");
+        Serial.print(yAxis);
+
+        // call tank model driving function based on the selection of xAxis, yAxis
+        drive_function(xAxis, yAxis);
+
+        // measure the ultrasonic distance and show on LCD
+        distance = readPing();
+
+        // sound horn or activate/deactivate selfdrive
+        activate_the_horn();  
+
+        Serial.println();
+      }
+
+    /* =============================================================================== 
+      2. Self drive logic
 
 
-      //mpu6050.update();
-      //start_angle = mpu6050.getAngleZ()
+      =============================================================================*/ 
+    if (SelfDriveMode) {
+      // SELF DRIVE LOGIC
+      // ==========================STAGE 1 OBSERVING====================================
+      // 1. first observe environment in a range by scanning around and measure distances,
+      //    and determine longest pathway.
+      // 2. turn through the angle that was determined.
+      // 3. drive until too close to object.
+      // ===============================================================================
 
-    }
 
-    if (Driving) {
-      // SelfDriveMode = true; Observing = false;  Turning = false;  Driving = true
+      if (Observing) {
+        // SelfDriveMode = true; Observing = true;  Turning = false;  Driving = false
 
-    }
+      }
 
-  } 
+      if (Turning) {
+        // SelfDriveMode = true; Observing = false;  Turning = true;  Driving = false
 
+
+        //mpu6050.update();
+        //start_angle = mpu6050.getAngleZ()
+
+      }
+
+      if (Driving) {
+        // SelfDriveMode = true; Observing = false;  Turning = false;  Driving = true
+
+      }
+
+    } 
+  }
 }
 
 
@@ -438,7 +498,7 @@ int readPing() {
     cm_text = String(cm);
   }
 
-  Serial.print("DIST \t");
+  Serial.print("  ULTDIST=");
   Serial.print(cm_text);
   Serial.print("\t");
 
@@ -452,17 +512,13 @@ int readPing() {
 }
 
 
-
-
-
-
 // ============  RF24 SUB PROGRAMS  ============
 void listern_to_RF24() {
   lcd.setCursor(0,0);
   if (radio.available())  // If the NRF240L01 module received data
   {
 		lcd.write(0);
-    Serial.print("RF\t 1 \t");
+    Serial.print("\t RF=1");
     radio.read(&receivedData, sizeof(receivedData));  // Read the data and put it into character array
     if (!SelfDriveMode) {
       xAxis = receivedData[0];
@@ -473,7 +529,7 @@ void listern_to_RF24() {
   }
   else{
     lcd.write(1);
-    Serial.print("RF\t 0 \t");
+    Serial.print("\t RF=0");
   }
 }
 
@@ -483,14 +539,14 @@ void activate_the_horn() {
     digitalWrite(Horn, HIGH);
     lcd.setCursor(11,0);
     lcd.write(6);
-    Serial.print("H\t 1 \t");
+    Serial.print("\t HORN=1");
     CountZero++;
   } 
   else {
     digitalWrite(Horn, LOW);
     lcd.setCursor(11,0);
     lcd.print("-");
-    Serial.print("H\t 0 \t");
+    Serial.print("\t HORN=0");
     if (millis() - FirstZero > 1000) {
       CountZero = 0;
       FirstZero = millis();
@@ -527,51 +583,18 @@ void drive_function(int xAxis, int yAxis) {
   // Step 6 : Calculate L: L = (V-W) /2
   L = (V - W) / 2;
 
-  Serial.print("V\t");
+  Serial.print("\t V=");
   Serial.print(V);
-	Serial.print("\tW\t");
+	Serial.print("  W=");
   Serial.print(W);
-	Serial.print("\t");
 
-  Serial.print("R\t");
+  Serial.print("  R=");
   Serial.print(R);
-	Serial.print("\t L\t");
+	Serial.print("  L=");
   Serial.print(L);
-	Serial.print("\t");
 
   set_motor_speeds(R, enA1, enA2, 2);
   set_motor_speeds(L, enB1, enB2, 4);
-
-/*
-  if (R < -10) {
-    motorSpeedA = map(R, -10, -100, 20, 255);
-    motor_speed_A_function(0, motorSpeedA);
-  } else if (R > 10) {
-    motorSpeedA = map(R, 10, 100, 20, 255);
-    motor_speed_A_function(motorSpeedA, 0);
-  } else {
-    motorSpeedA = 0;
-    motor_speed_A_function(0, 0);
-  }
-
-  if (L < -10) {
-    motorSpeedB = map(L, -10, -100, 20, 255);
-    motor_speed_B_function(0, motorSpeedB);
-  } else if (L > 10) {
-    motorSpeedB = map(L, 10, 100, 20, 255);
-    motor_speed_B_function(motorSpeedB, 0);
-  } else {
-    motorSpeedB = 0;
-    motor_speed_B_function(0, 0);
-  }
-
-
-  lcd.setCursor(2,0);
-  lcd.write(11);
-  lcd.setCursor(4,1);
-  lcd.write(12);
-
-*/
 
   delay(10);
 }
@@ -599,16 +622,14 @@ void set_motor_speeds(int calc_speed, uint8_t pin1, uint8_t pin2, int side){
     lcd.write(4);     //clear block
   }
 
-  Serial.print("p");
+  Serial.print("\t p");
   Serial.print(pin1);
-  Serial.print("\t");
+  Serial.print("=");
   Serial.print(pin1_speed);
   Serial.print("\t p");
   Serial.print(pin2);
-  Serial.print("\t");
+  Serial.print("=");
   Serial.print(pin2_speed);
-  Serial.print("\t");
-
 
   analogWrite(pin1, pin1_speed);  // Send PWM signal to motor
   analogWrite(pin2, pin2_speed);  // Send PWM signal to motor
