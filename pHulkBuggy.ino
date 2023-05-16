@@ -39,7 +39,7 @@ const long version_date = 20220731;       // revision date
 // ===               INCLUDE FOLLOWING LIBRARIES                ===
 // ================================================================
 #include <LiquidCrystal_I2C.h>  // include the I2C LED screen library
-#include <Servo.h>              // include the Servo library
+//#include <Servo.h>              // include the Servo library
 #include <NewPing.h>            // ultrasonic sensor function library
 #include <I2Cdev.h>
 //#include <MPU6050.h>
@@ -65,10 +65,10 @@ const long version_date = 20220731;       // revision date
 #define trigPin A1       // define the sensor trigger pin
 #define echoPin A0       // define the sensor echo pin
 #define servoPin A2      // declare the Servo pin
-#define enA1 9
-#define enA2 6
-#define enB1 3
-#define enB2 5
+#define enA1 3
+#define enA2 5
+#define enB1 9
+#define enB2 6
 #define Horn 4
 bool blinkState = false;  // note used
 
@@ -103,7 +103,7 @@ bool Observing = false;       // boolean for whether or not the vehicle is obser
 bool Turning = false;         // boolean for whether or not the vehicle is turning
 bool Driving = false;         // boolean for whether or not the vehicle is driving
 bool SelfDriveMode = false;   // Is the car in self drive or not
-bool UnitTest = true;         // Create unit test section
+bool UnitTest = false;         // Create unit test section
 
 
 // LCD variables
@@ -123,7 +123,7 @@ byte hornChar[] = {  B00110,  B01000,  B10010,  B10101,  B10101,  B10010,  B0100
 // ===                    CREATE OBJECTS                        ===
 // ================================================================
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-Servo Servo1;                                       //servo object
+//Servo Servo1;                                       //servo object
 NewPing sonar(trigPin, echoPin, maximum_distance);  //sensor function
 //MPU6050 mpu;                                        // AD0 low = 0x68 (default)
 MPU6050 mpu6050(Wire);
@@ -181,7 +181,7 @@ void splash(void)
   Serial.println("=======================================================");
   Serial.println("===        WELCOME TO THE HULK BUGGY PROJECT        ===");
   Serial.println("===                  BY SPOORSTAAF                  ===");
-  Serial.println("===                   31/07/2022                    ===");
+  Serial.println("===                   16/05/2023                    ===");
   Serial.println("=======================================================");
   Serial.println();
   Serial.println();
@@ -300,8 +300,8 @@ void setup() {
   delay(500);
 
   // ============  Servo  ============ 
-  Servo1.attach(servoPin);
-  move_servo(90, j);  // the starting point is at 90 degrees
+  //Servo1.attach(servoPin);
+  //move_servo(90, j);  // the starting point is at 90 degrees
   Serial.println("  ... Servo now at 90");
   delay(500);
 
@@ -318,19 +318,17 @@ void setup() {
 void loop() {
   /* ==========================GENERAL INFORMATION==================================
      The following steps are being preformed in the loop of the program:
+     0. Unit test function
      1. Manual drive logic
      2. Self drive logic
      =============================================================================*/ 
 
-
-  
     if(UnitTest){
       //Serial.println("UTest"); 
 
       xAxis = 510;
       yAxis = 510;
       
-
       while (Serial.available() > 0) {
         // read the incoming byte:
         int incoming = Serial.parseInt();
@@ -340,54 +338,60 @@ void loop() {
         Serial.print("Selection: ");
         Serial.println(incoming);
 
-
         if(incoming == 1){
-          int startMillis = millis();
           Serial.println(" - Moving forward");
           drive_function(561, 1024);
           delay(2000);
+          drive_function(510, 510);
         }
         else if(incoming == 2){
-          int startMillis = millis();
           Serial.println(" - Moving backward");
           drive_function(561, 0);
           delay(2000);
-        }
-              /*
-              #define enA1 9
-              #define enA2 6
-              #define enB1 3
-              #define enB2 5
-              */      
+          drive_function(510, 510);
+        }      
         else if(incoming == 3){
-          int startMillis = millis();
-          Serial.println(" - Moving Pin 9");
-          analogWrite(enA1, 255);  // Send PWM signal to motor
+          Serial.println(" - Tenk turn left");
+          drive_function(1024, 547);
           delay(2000);
-          analogWrite(enA1, 0);
+          drive_function(510, 510);
         }
         else if(incoming == 4){
-          int startMillis = millis();
-          Serial.println(" - Moving Pin 6");
-          analogWrite(enA2, 255);  // Send PWM signal to motor
+          Serial.println(" - Tenk turn right");
+          drive_function(0, 547);
           delay(2000);
-          analogWrite(enA2, 0);
+          drive_function(510, 510);
         }
         else if(incoming == 5){
-          int startMillis = millis();
-          Serial.println(" - Moving Pin 3");
-          analogWrite(enB1, 255);  // Send PWM signal to motor
+          Serial.println(" - Turn left");
+          drive_function(1024, 1024);
           delay(2000);
-          analogWrite(enB1, 0);
+          drive_function(510, 510);
         }
         else if(incoming == 6){
-          int startMillis = millis();
-          Serial.println(" - Moving Pin 5");
-          analogWrite(enB2, 255);  // Send PWM signal to motor
+          Serial.println(" - Turn right");
+          drive_function(0, 0);
           delay(2000);
-          analogWrite(enB2, 0);
+          drive_function(510, 510);
         }
+
         else if(incoming == 7){
+          Serial.println(" - Moving Pin 9");
+          set_motor_speeds_unit_test(255, enA1, 2000);
+        }
+        else if(incoming == 8){
+          Serial.println(" - Moving Pin 6");
+          set_motor_speeds_unit_test(255, enA2, 2000);
+        }
+        else if(incoming == 9){
+          Serial.println(" - Moving Pin 3");
+          set_motor_speeds_unit_test(255, enB1, 2000);
+        }
+        else if(incoming == 10){
+          Serial.println(" - Moving Pin 5");
+          set_motor_speeds_unit_test(255, enA1, 2000);
+        }
+        else if(incoming == 11){
           Serial.println(" -Variable speed test");
           set_motor_speeds_unit_test(255/4, enA1, 2000);
           set_motor_speeds_unit_test(255/2, enA1, 2000);
@@ -409,7 +413,7 @@ void loop() {
           set_motor_speeds_unit_test(255*3/4, enB2, 2000);
           set_motor_speeds_unit_test(255, enB2, 2000);
         }
-        else if(incoming == 8){
+        else if(incoming == 12){
           Serial.println(" -LED test");
           set_motor_speeds_unit_test(255, enA1, 2000);
           set_motor_speeds_unit_test(255, enA2, 2000);
@@ -502,7 +506,7 @@ void loop() {
 // ============  SERVO SUB PROGRAMS  ============
 void move_servo(int a, int b) {
   // Make servo go to a degrees and apply b delay to the system
-  Servo1.write(a);
+  //Servo1.write(a);
   delay(b);
 }
 
