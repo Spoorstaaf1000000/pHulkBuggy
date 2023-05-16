@@ -364,34 +364,59 @@ void loop() {
           Serial.println(" - Moving Pin 9");
           analogWrite(enA1, 255);  // Send PWM signal to motor
           delay(2000);
+          analogWrite(enA1, 0);
         }
         else if(incoming == 4){
           int startMillis = millis();
           Serial.println(" - Moving Pin 6");
           analogWrite(enA2, 255);  // Send PWM signal to motor
           delay(2000);
+          analogWrite(enA2, 0);
         }
         else if(incoming == 5){
           int startMillis = millis();
           Serial.println(" - Moving Pin 3");
           analogWrite(enB1, 255);  // Send PWM signal to motor
           delay(2000);
+          analogWrite(enB1, 0);
         }
         else if(incoming == 6){
           int startMillis = millis();
           Serial.println(" - Moving Pin 5");
           analogWrite(enB2, 255);  // Send PWM signal to motor
           delay(2000);
+          analogWrite(enB2, 0);
         }
         else if(incoming == 7){
-          int startMillis = millis();
-          Serial.println(" - add description");
-          analogWrite(enB2, 255);  // Send PWM signal to motor
-          delay(2000);
+          Serial.println(" -Variable speed test");
+          set_motor_speeds_unit_test(255/4, enA1, 2000);
+          set_motor_speeds_unit_test(255/2, enA1, 2000);
+          set_motor_speeds_unit_test(255*3/4, enA1, 2000);
+          set_motor_speeds_unit_test(255, enA1, 2000);
+          
+          set_motor_speeds_unit_test(255/4, enA2, 2000);
+          set_motor_speeds_unit_test(255/2, enA2, 2000);
+          set_motor_speeds_unit_test(255*3/4, enA2, 2000);
+          set_motor_speeds_unit_test(255, enA2, 2000);
+
+          set_motor_speeds_unit_test(255/4, enB1, 2000);
+          set_motor_speeds_unit_test(255/2, enB1, 2000);
+          set_motor_speeds_unit_test(255*3/4, enB1, 2000);
+          set_motor_speeds_unit_test(255, enB1, 2000);
+          
+          set_motor_speeds_unit_test(255/4, enB2, 2000);
+          set_motor_speeds_unit_test(255/2, enB2, 2000);
+          set_motor_speeds_unit_test(255*3/4, enB2, 2000);
+          set_motor_speeds_unit_test(255, enB2, 2000);
+        }
+        else if(incoming == 8){
+          Serial.println(" -LED test");
+          set_motor_speeds_unit_test(255, enA1, 2000);
+          set_motor_speeds_unit_test(255, enA2, 2000);
+          set_motor_speeds_unit_test(255, enB1, 2000);
+          set_motor_speeds_unit_test(255, enB2, 2000);
         }
 
-
-        drive_function(510, 510);
       }
     }
 
@@ -634,6 +659,22 @@ void set_motor_speeds(int calc_speed, uint8_t pin1, uint8_t pin2, int side){
   analogWrite(pin1, pin1_speed);  // Send PWM signal to motor
   analogWrite(pin2, pin2_speed);  // Send PWM signal to motor
 }
+
+void set_motor_speeds_unit_test(int pin_speed, uint8_t pin, int pin_delay){
+
+  Serial.print("\t p");
+  Serial.print(pin);
+  Serial.print("=");
+  Serial.println(pin_speed);
+  analogWrite(pin, pin_speed);  // Send PWM signal to motor
+  delay(pin_delay);
+  analogWrite(pin, 0);  // Send PWM signal to motor to stop
+}
+
+
+
+
+
 
 /*
 void motor_speed_A_function(int a, int b) {
