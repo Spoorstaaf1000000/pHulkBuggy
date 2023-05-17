@@ -1,5 +1,5 @@
 # pHulkBuggy
-This is the readme file for the HulkBuggy, the second version of the self drive project.
+This is the readme file for the HulkBuggy, the third version of the self drive project.
 
 ## Pinout and connections
 The following pinouts are being used in this project
@@ -74,3 +74,8 @@ https://www.markdownguide.org/cheat-sheet/
                       https://randomnerdtutorials.com/
   **Tank joystick** https://home.kendra.com/mauser/joystick.html
   **MPU6050** https://howtomechatronics.com/tutorials/arduino/arduino-and-mpu6050-accelerometer-and-gyroscope-tutorial/
+              https://www.instructables.com/MPU-6050-Tutorial-How-to-Program-MPU-6050-With-Ard/
+              https://lastminuteengineers.com/mpu6050-accel-gyro-arduino-tutorial/
+  **RF24**    https://www.arrow.com/en/research-and-events/articles/arduino-rf-communication-tutorial-with-nrf24l01-plus       
+              
+              https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/

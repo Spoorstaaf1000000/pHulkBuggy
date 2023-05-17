@@ -1,6 +1,6 @@
 /* ================================================================
   Name:       pHulkBuggy.ino
-  Created:    2022/07/31
+  Created:    2023/05/17
   Author:     Spoorstaaf
 
   This is the new code to the HulkBuggy which is a followup on AutoDrive.ino
@@ -77,7 +77,7 @@ bool blinkState = false;  // note used
 // ===                      GEN VARIABLES                       ===
 // ================================================================
 // General variables
-const int BAUD_RATE PROGMEM = 9600;
+const int BAUD_RATE PROGMEM = 19200;
 
 // Ultrasonic sensor variables
 int distance = 0;       // distance measured by sensor
@@ -96,6 +96,7 @@ signed int TurningAngle = 0;      // the value of the angular change required fo
 int angle;     // angle on MPU
 bool FirstAngle = true;       // boolean to determine if this is the first angle
 int FirstAngleValue = 0;      // first angle from MPU, before user movements of MPU
+int timer = 0;
 
 // Stages variables
 int StageDelay = 2000;        // delay between stages
@@ -261,27 +262,34 @@ void setup() {
 	lcd.clear();
   lcd.home();
   lcd.write(1);
-  lcd.setCursor(6,0);
-  lcd.write(2);
+  //lcd.setCursor(6,0);
+  //lcd.write(2);
 
   Serial.println("  ... LCD set");
 
   // ============  MPU6050  ============
-  //NOT BROUGHT OVER FROM VERSION 1 YET
-  
-  //mpu6050.begin();
-  //mpu6050.calcGyroOffsets(true);
-  //mpu6050.getAngleZ();
-  /* new library*/
+  Wire.begin();
+  mpu6050.begin();
+  lcd.setCursor(0,1);
+  lcd.print("MPU6050");
+  mpu6050.calcGyroOffsets(true);
+  lcd.setCursor(1,1);
+  lcd.print("       ");
+  lcd.setCursor(1,1);
+  delay(100);
 
   // ============  LED  ============/ 
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.println("  ... LED pin set");
+  lcd.print("1");
+  delay(100);
 
   // ============  Ultrasonic sensor  ============ 
   pinMode(trigPin, OUTPUT);  // Sets the trigPin as an Output
   pinMode(echoPin, INPUT);   // Sets the echoPin as an Input
   Serial.println("  ... Ultrasonic sensor set");
+  lcd.print("2");
+  delay(100);
 
   // ============  H-Bridge  ============/ 
   pinMode(enA1, OUTPUT);
@@ -290,19 +298,24 @@ void setup() {
   pinMode(enB2, OUTPUT);
   pinMode(Horn, OUTPUT);
   Serial.println("  ... H-Bridge set");
+  lcd.print("3");
+  delay(100);
 
   // ============  RF24 Radio  ============ 
   radio.begin();
   radio.openReadingPipe(0, address);
   radio.setPALevel(RF24_PA_MIN);
+  radio.setDataRate(RF24_2MBPS);
   radio.startListening();
   Serial.println("  ... RF communication now started");
-  delay(500);
+  lcd.print("4");
+  delay(100);
 
   // ============  Servo  ============ 
   //Servo1.attach(servoPin);
   //move_servo(90, j);  // the starting point is at 90 degrees
   Serial.println("  ... Servo now at 90");
+  lcd.print("5...GO");
   delay(500);
 
 
@@ -325,7 +338,8 @@ void loop() {
 
     if(UnitTest){
       //Serial.println("UTest"); 
-
+      lcd.setCursor(0,1);
+      lcd.print("U");
       xAxis = 510;
       yAxis = 510;
       
@@ -420,7 +434,19 @@ void loop() {
           set_motor_speeds_unit_test(255, enB1, 2000);
           set_motor_speeds_unit_test(255, enB2, 2000);
         }
-
+        else if(incoming == 15){
+          int x = 0;
+          do {
+            mpu6050.update();
+            Serial.print("angleX : ");
+            Serial.print(mpu6050.getAngleX());
+            Serial.print("\tangleY : ");
+            Serial.print(mpu6050.getAngleY());
+            Serial.print("\tangleZ : ");
+            Serial.println(mpu6050.getAngleZ());
+            x += 1;
+          } while (x < 100);
+        }
       }
     }
 
@@ -440,6 +466,18 @@ void loop() {
         // listern for a new RF24 instruction
         listern_to_RF24();
 
+        // write MPU6050 value to the LCD and serial out
+        mpu6050.update();
+        Serial.print("\t Yangle=");
+        Serial.print(mpu6050.getAngleZ());
+        if(millis() - timer > 2000){
+          lcd.setCursor(5,1);
+          lcd.print("       ");
+          lcd.setCursor(5,1);
+          lcd.print(mpu6050.getAngleZ());
+          timer = millis();
+        }
+        // Joystick values
         Serial.print("\t X=");
         Serial.print(xAxis);
         Serial.print("\t Y=");
