@@ -273,9 +273,9 @@ void setup() {
   lcd.setCursor(0,1);
   lcd.print("MPU6050");
   mpu6050.calcGyroOffsets(true);
-  lcd.setCursor(1,1);
+  lcd.setCursor(0,1);
   lcd.print("       ");
-  lcd.setCursor(1,1);
+  lcd.setCursor(0,1);
   delay(100);
 
   // ============  LED  ============/ 
@@ -317,6 +317,7 @@ void setup() {
   Serial.println("  ... Servo now at 90");
   lcd.print("5...GO");
   delay(500);
+  lcd.clear();
 
 
 }
@@ -471,9 +472,9 @@ void loop() {
         Serial.print("\t Yangle=");
         Serial.print(mpu6050.getAngleZ());
         if(millis() - timer > 2000){
-          lcd.setCursor(5,1);
+          lcd.setCursor(6,1);
           lcd.print("       ");
-          lcd.setCursor(5,1);
+          lcd.setCursor(6,1);
           lcd.print(mpu6050.getAngleZ());
           timer = millis();
         }
